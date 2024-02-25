@@ -3,6 +3,7 @@ from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import CountVectorizer
 import glob
 import os
+import numpy as np
 from collections import defaultdict
 def letters_only(astr):
     return astr.isalpha()
@@ -46,3 +47,38 @@ def get_label_index(label):
 label_index=get_label_index(labels)
 print(label_index) 
 
+def get_prior(label_index):
+    """ compute prior based on training samples
+    Args: 
+        label_index(grouped sample indices by classs)
+    Return:
+        dictionary, with class label as key, corresponing prior as the value
+    """
+    prior={label: len(index) for label , index in label_index.items()}
+    total_count=sum(prior.values())
+    for label in prior:
+        prior[label]/=float(total_count)
+    return prior
+def get_likelihood(term_document_matrix,label_index,smoothing=0):
+    """ compute likelihood based on training samples
+    Args: 
+            term_document_matrix(sparse matrix)
+            label_index(grouped sample indices by classs)
+            smoothing (integer, additive Laplace smoothing parameter)
+    Returns:
+            dictionary, with class as key, corresponding conditional 
+            probability P(feature|class) vector as value
+    """
+    likelihood={}
+    for label,index in label_index.items():
+        likelihood[label]=term_document_matrix[index,:].sum(axis=0)+smoothing
+        likelihood[label]=np.asarray(likelihood[label])[0]
+        total_count = likelihood[label].sum()
+        likelihood[label]=likelihood[label]/float(total_count)
+    return likelihood
+smoothing =1
+likelihood=get_likelihood(term_docs,label_index,smoothing)
+print(likelihood[0])
+print(len(likelihood[0]))
+print(likelihood[1][56])
+print (feature_names[:45])
