@@ -114,14 +114,34 @@ def get_posteriors(term_document_matrix,prior,likelihood):
                     # if one's log value is excessively large assign it infinity
                     posterior[label]=float('inf')
             # normalize so that all sum up to 1
-            sum_posterior=sum(posterior.value())
+            sum_posterior=sum(posterior.values())
             for label in posterior:
                 if posterior[label]==float('inf'):
                     posterior[label]=1.0
                 else:
-                    posterior/=sum_posterior
+                    posterior[label]/=sum_posterior
             posteriors.append(posterior.copy())
     return posteriors        
 
-
+emails_test=[
+    ''' Subject: flat screens
+     hello,
+     please call or contact regarding the other flat screens request.
+     trisha tlapek - eb 3112 b
+     micheal sergev- eb 3112 a
+     also sun blocker that was taken away from eb 3131 a.
+     trisha should two monitor also micheal.
+     thanks
+     kevin moore''',
+     '''Subject :  having problem in bed? we can help !
+     cialis allows men to enjoy a fully normal sex life without havimg to plan sexual act.
+     if we let thing terrify us, life will not be worth living 
+     brevity is the soul od lingerie.
+     suspicion always haunts the guilty mind.''',
+]
+cleaned_test=clean_text(emails_test)
+prior=get_prior(label_index)
+term_docs_test=cv.fit_transform(cleaned_test)
+posterior=get_posteriors(term_docs_test,prior,likelihood)
+print(posterior)
 
